@@ -1,2 +1,2 @@
 # gameq
-gaming backlog in your terminal
+gaming backlog and queue manager
