@@ -8,3 +8,7 @@
 *.class
 out/
 target/
+
+# gradle
+.gradle/
+build/
