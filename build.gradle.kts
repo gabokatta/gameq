@@ -1,5 +1,6 @@
 plugins {
     application
+    jacoco
     id("org.openjfx.javafxplugin") version "0.1.0"
     id("com.diffplug.spotless") version "8.10.2"
     id("org.sonarqube") version "7.5.0.8588"
@@ -34,6 +35,11 @@ tasks.test {
     useJUnitPlatform()
     jvmArgs("--enable-native-access=ALL-UNNAMED")
     systemProperty("gameq.flywayLogLevel", "WARN")
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports { xml.required = true }
 }
 
 spotless {

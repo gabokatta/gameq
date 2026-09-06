@@ -87,7 +87,7 @@ jobs:
       - name: Analyze and wait for quality gate
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew classes sonar --no-daemon -Dsonar.qualitygate.wait=true
+        run: ./gradlew jacocoTestReport sonar --no-daemon -Dsonar.qualitygate.wait=true
 
   dependency-review:
     name: Dependency review
