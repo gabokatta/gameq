@@ -34,5 +34,6 @@ sonar {
     properties {
         property("sonar.projectKey", "gabokatta_gameq")
         property("sonar.organization", "gabokatta")
+        property("sonar.host.url", "https://sonarcloud.io")
     }
 }
