@@ -11,7 +11,9 @@ java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
 
 dependencies {
     implementation("org.flywaydb:flyway-core:13.5.0")
+    implementation("org.slf4j:slf4j-api:2.0.19")
     runtimeOnly("org.xerial:sqlite-jdbc:3.53.4.0")
+    runtimeOnly("ch.qos.logback:logback-classic:1.6.3")
 
     testImplementation(platform("org.junit:junit-bom:6.0.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -31,6 +33,7 @@ application {
 tasks.test {
     useJUnitPlatform()
     jvmArgs("--enable-native-access=ALL-UNNAMED")
+    systemProperty("gameq.flywayLogLevel", "WARN")
 }
 
 spotless {

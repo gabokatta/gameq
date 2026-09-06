@@ -4,11 +4,6 @@ public final class LibraryException extends RuntimeException {
 
     private final LibraryError error;
 
-    LibraryException(LibraryError error) {
-        super(error.message());
-        this.error = error;
-    }
-
     LibraryException(LibraryError error, Throwable cause) {
         super(error.message(), cause);
         this.error = error;

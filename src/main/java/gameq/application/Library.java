@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
-import java.util.function.Supplier;
 
 public final class Library implements AutoCloseable {
 
@@ -19,46 +18,48 @@ public final class Library implements AutoCloseable {
         this.clock = clock;
     }
 
-    public static Library open(Path database) {
+    public static Result<Library, LibraryError> open(Path database) {
         return open(database, Clock.systemUTC());
     }
 
-    public static Library open(Path database, Clock clock) {
-        return callStore(
-                LibraryError.OPEN_FAILED, () -> new Library(GameStore.open(database), clock));
+    public static Result<Library, LibraryError> open(Path database, Clock clock) {
+        var normalizedDatabase = database.toAbsolutePath().normalize();
+
+        try {
+            return Result.success(new Library(GameStore.open(normalizedDatabase), clock));
+        } catch (GameStoreException cause) {
+            return Result.failure(new LibraryError.OpenFailed(normalizedDatabase, cause));
+        }
     }
 
-    public Game addGame(String title) {
+    public Result<Game, LibraryError> addGame(String title) {
         if (title == null || title.isBlank()) {
-            throw new LibraryException(LibraryError.INVALID_TITLE);
+            return Result.failure(new LibraryError.InvalidTitle());
         }
 
-        return callStore(
-                LibraryError.SAVE_FAILED, () -> games.add(title.strip(), Instant.now(clock)));
+        var normalizedTitle = title.strip();
+
+        try {
+            return Result.success(games.add(normalizedTitle, Instant.now(clock)));
+        } catch (GameStoreException cause) {
+            return Result.failure(new LibraryError.SaveFailed(normalizedTitle, cause));
+        }
     }
 
-    public List<Game> games() {
-        return callStore(LibraryError.LOAD_FAILED, games::all);
+    public Result<List<Game>, LibraryError> games() {
+        try {
+            return Result.success(games.all());
+        } catch (GameStoreException cause) {
+            return Result.failure(new LibraryError.LoadFailed(cause));
+        }
     }
 
     @Override
     public void close() {
-        runStore(LibraryError.CLOSE_FAILED, games::close);
-    }
-
-    private static <T> T callStore(LibraryError error, Supplier<T> call) {
         try {
-            return call.get();
-        } catch (GameStoreException exception) {
-            throw new LibraryException(error, exception);
-        }
-    }
-
-    private static void runStore(LibraryError error, Runnable call) {
-        try {
-            call.run();
-        } catch (GameStoreException exception) {
-            throw new LibraryException(error, exception);
+            games.close();
+        } catch (GameStoreException cause) {
+            throw new LibraryException(new LibraryError.CloseFailed(cause), cause);
         }
     }
 }
