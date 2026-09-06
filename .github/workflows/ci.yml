@@ -15,19 +15,37 @@ concurrency:
 
 jobs:
   build:
-    name: Build & test
+    name: Build, test & quality gate
     runs-on: macos-15
-    timeout-minutes: 15
+    timeout-minutes: 25
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '25'
       - uses: gradle/actions/setup-gradle@v6
-      - run: ./gradlew build --no-daemon
+      - name: Compile
+        run: ./gradlew classes testClasses --no-daemon
+      - name: Test
+        run: ./gradlew test --no-daemon
+      - name: Check formatting
+        run: ./gradlew spotlessCheck --no-daemon
+      - name: Package and complete build checks
+        run: ./gradlew build --no-daemon
+      - name: SonarCloud quality gate
+        if: >-
+          github.actor != 'dependabot[bot]' &&
+          (github.event_name == 'push' ||
+           github.event.pull_request.head.repo.full_name == github.repository)
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./gradlew sonar --no-daemon -Dsonar.qualitygate.wait=true
       - name: Submit dependency graph
         if: github.event_name == 'push'
         uses: gradle/actions/dependency-submission@v6
@@ -38,7 +56,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v7
       - uses: actions/dependency-review-action@v5
         with:
           fail-on-severity: high
