@@ -7,6 +7,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public final class GameqApplication extends Application {
+
     @Override
     public void start(Stage stage) {
         var root = new StackPane(new Label("gameq"));
