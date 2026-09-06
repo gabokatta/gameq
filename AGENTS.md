@@ -42,6 +42,8 @@ proves launch, persistence, and packaging early.
 
 ## Validation
 
+- After completing code changes, run `./gradlew spotlessApply` and review the
+  resulting diff before final validation and handoff.
 - Test public application behavior with real temporary SQLite databases,
   including migrations, transactions, and persistence across restarts.
 - Test provider integration through a local HTTP test server. Keep request
