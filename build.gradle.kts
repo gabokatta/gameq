@@ -15,9 +15,8 @@ javafx {
 }
 
 application {
-    mainModule = "gameq"
     mainClass = "gameq.GameqApplication"
-    applicationDefaultJvmArgs = listOf("--enable-native-access=javafx.graphics")
+    applicationDefaultJvmArgs = listOf("--enable-native-access=ALL-UNNAMED")
 }
 
 spotless {
