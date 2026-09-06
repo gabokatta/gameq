@@ -9,6 +9,15 @@ repositories { mavenCentral() }
 
 java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
 
+dependencies {
+    implementation("org.flywaydb:flyway-core:13.5.0")
+    runtimeOnly("org.xerial:sqlite-jdbc:3.53.4.0")
+
+    testImplementation(platform("org.junit:junit-bom:6.0.3"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
 javafx {
     version = "25.0.4"
     modules("javafx.controls")
@@ -17,6 +26,11 @@ javafx {
 application {
     mainClass = "gameq.Launcher"
     applicationDefaultJvmArgs = listOf("--enable-native-access=javafx.graphics,ALL-UNNAMED")
+}
+
+tasks.test {
+    useJUnitPlatform()
+    jvmArgs("--enable-native-access=ALL-UNNAMED")
 }
 
 spotless {
