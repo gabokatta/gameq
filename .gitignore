@@ -1,14 +1,16 @@
 # intellij stuff
 .idea/
 *.iml
-*.ipr
-*.iws
-
-# java outputs
-*.class
 out/
-target/
 
-# gradle
+# gradle stuff
 .gradle/
 build/
+
+# macos stuff
+.DS_Store
+
+# local secrets
+.env
+.env.*
+!.env.example
