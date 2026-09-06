@@ -6,8 +6,7 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: sonar-${{ github.ref }}
@@ -16,6 +15,8 @@ concurrency:
 jobs:
   analyze:
     name: Sonar quality gate
+    permissions:
+      contents: read
     if: >-
       github.actor != 'dependabot[bot]' &&
       (github.event_name != 'pull_request' ||
