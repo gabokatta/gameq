@@ -26,6 +26,18 @@ proves launch, persistence, and packaging early.
 - Use standard JavaFX controls with AtlantaFX and one Ikonli icon family.
   CSSFX is development-only. Scene Builder is optional tooling.
 
+## Code conventions
+
+- Application services express expected failures with `Result<T, E>` and
+  sealed, operation-specific errors. Translate infrastructure exceptions at
+  the application boundary; adapt only where a host contract requires an
+  exception.
+- Error values identify the failed operation and relevant resource, retain the
+  underlying cause when one exists, and contain enough context for the desktop
+  layer to present or log them without reconstructing what happened.
+- Prefer explicit operation-specific handling over generic wrappers that hide
+  context or make successful calls read like failure paths.
+
 ## Domain essentials
 
 - A game is a library entry; a playthrough is one attempt at that game. Replays
