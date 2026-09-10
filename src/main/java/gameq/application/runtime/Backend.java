@@ -27,7 +27,8 @@ public final class Backend implements AutoCloseable {
 
         try {
             var openedDatabase = Database.open(normalizedDatabase);
-            var library = new Library(new GameStore(openedDatabase), clock);
+            var games = new GameStore(openedDatabase);
+            var library = new Library(games, clock);
             return Result.success(new Backend(openedDatabase, library));
         } catch (DatabaseException cause) {
             return Result.failure(new BackendError.OpenFailed(normalizedDatabase, cause));
@@ -43,7 +44,8 @@ public final class Backend implements AutoCloseable {
         try {
             database.close();
         } catch (DatabaseException cause) {
-            throw new BackendException(new BackendError.CloseFailed(cause));
+            var error = new BackendError.CloseFailed(cause);
+            throw new BackendException(error);
         }
     }
 }

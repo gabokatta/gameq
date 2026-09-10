@@ -45,24 +45,28 @@ final class AppController implements AutoCloseable {
 
     private void saveGame(String title) {
         switch (backend.library().addGame(title)) {
-            case Result.Success(var game) -> Platform.runLater(() -> view.showAddedGame(game));
+            case Result.Success(var game) -> onUiThread(() -> view.showAddedGame(game));
             case Result.Failure(var error) -> {
                 log(error);
-                Platform.runLater(() -> view.showSaveError(error.message()));
+                onUiThread(() -> view.showSaveError(error.message()));
             }
         }
     }
 
     private void loadGames() {
         switch (backend.library().games()) {
-            case Result.Success(var games) -> Platform.runLater(() -> view.showGames(games));
+            case Result.Success(var games) -> onUiThread(() -> view.showGames(games));
             case Result.Failure(var error) -> showError(error);
         }
     }
 
     private void showError(ApplicationError error) {
         log(error);
-        Platform.runLater(() -> view.showError(error.message()));
+        onUiThread(() -> view.showError(error.message()));
+    }
+
+    private static void onUiThread(Runnable action) {
+        Platform.runLater(action);
     }
 
     private static void log(ApplicationError error) {

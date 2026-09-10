@@ -10,8 +10,16 @@ import java.util.Objects;
 
 public final class GameStore {
 
-    private static final String INSERT_GAME = "INSERT INTO games (title, added_at) VALUES (?, ?) RETURNING id";
-    private static final String SELECT_GAMES = "SELECT id, title, added_at FROM games ORDER BY added_at, id";
+    private static final String INSERT_GAME = """
+            INSERT INTO games (title, added_at)
+            VALUES (?, ?)
+            RETURNING id
+            """;
+    private static final String SELECT_GAMES = """
+            SELECT id, title, added_at
+            FROM games
+            ORDER BY added_at, id
+            """;
 
     private final Database database;
 
@@ -30,7 +38,10 @@ public final class GameStore {
                 if (!rows.next()) {
                     throw new GameStoreException("Game insert returned no id");
                 }
-                return new Game(rows.getLong("id"), title, Instant.ofEpochMilli(addedAtEpochMillis));
+
+                var id = rows.getLong("id");
+                var savedAt = Instant.ofEpochMilli(addedAtEpochMillis);
+                return new Game(id, title, savedAt);
             }
         } catch (SQLException cause) {
             throw new GameStoreException("Could not add game", cause);
@@ -43,8 +54,12 @@ public final class GameStore {
         try (var statement = database.connection().prepareStatement(SELECT_GAMES);
                 var rows = statement.executeQuery()) {
             while (rows.next()) {
-                games.add(new Game(
-                        rows.getLong("id"), rows.getString("title"), Instant.ofEpochMilli(rows.getLong("added_at"))));
+                var id = rows.getLong("id");
+                var title = rows.getString("title");
+                var addedAtEpochMillis = rows.getLong("added_at");
+                var addedAt = Instant.ofEpochMilli(addedAtEpochMillis);
+
+                games.add(new Game(id, title, addedAt));
             }
             return List.copyOf(games);
         } catch (SQLException cause) {

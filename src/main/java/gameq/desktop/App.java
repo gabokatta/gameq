@@ -41,7 +41,8 @@ public final class App extends Application {
         var form = new HBox(8, titleInput, addButton);
         HBox.setHgrow(titleInput, Priority.ALWAYS);
 
-        var root = new VBox(12, new Label("Game library"), form, gameTitles, status);
+        var heading = new Label("Game library");
+        var root = new VBox(12, heading, form, gameTitles, status);
         root.setPadding(new Insets(24));
         VBox.setVgrow(gameTitles, Priority.ALWAYS);
 

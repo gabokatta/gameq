@@ -24,9 +24,11 @@ public final class Database implements AutoCloseable {
         try {
             Files.createDirectories(database.getParent());
             Flyway.configure().dataSource(url, null, null).load().migrate();
-            return new Database(DriverManager.getConnection(url));
+            var connection = DriverManager.getConnection(url);
+            return new Database(connection);
         } catch (IOException | SQLException | FlywayException cause) {
-            throw new DatabaseException("Could not open database at \"%s\"".formatted(database), cause);
+            var message = "Could not open database at \"%s\"".formatted(database);
+            throw new DatabaseException(message, cause);
         }
     }
 

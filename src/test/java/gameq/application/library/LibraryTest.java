@@ -47,14 +47,16 @@ final class LibraryTest {
         var database = directory.resolve("library.db");
         var firstAddedAt = Instant.parse("2026-09-06T12:00:00Z");
         var secondAddedAt = Instant.parse("2026-09-06T12:00:00.100Z");
+        var firstClock = Clock.fixed(firstAddedAt, ZoneOffset.UTC);
+        var secondClock = Clock.fixed(secondAddedAt, ZoneOffset.UTC);
         Game first;
         Game second;
 
-        try (var backend = success(Backend.open(database, Clock.fixed(firstAddedAt, ZoneOffset.UTC)))) {
+        try (var backend = success(Backend.open(database, firstClock))) {
             first = success(backend.library().addGame("Pentiment"));
         }
 
-        try (var backend = success(Backend.open(database, Clock.fixed(secondAddedAt, ZoneOffset.UTC)))) {
+        try (var backend = success(Backend.open(database, secondClock))) {
             second = success(backend.library().addGame("Citizen Sleeper"));
         }
 
@@ -79,13 +81,13 @@ final class LibraryTest {
 
     @Test
     void reportsWhenDatabaseCannotBeOpened() {
-        var error = assertInstanceOf(BackendError.OpenFailed.class, failure(Backend.open(directory)));
+        var database = directory.toAbsolutePath().normalize();
+        var result = Backend.open(directory);
+        var error = assertInstanceOf(BackendError.OpenFailed.class, failure(result));
+        var expectedMessage = "Could not open gameq database at \"%s\"".formatted(database);
 
-        assertEquals(directory.toAbsolutePath().normalize(), error.database());
-        assertEquals(
-                "Could not open gameq database at \"%s\""
-                        .formatted(directory.toAbsolutePath().normalize()),
-                error.message());
+        assertEquals(database, error.database());
+        assertEquals(expectedMessage, error.message());
         var cause = assertInstanceOf(DatabaseException.class, error.cause());
         assertNotNull(cause.getCause());
     }
@@ -96,7 +98,8 @@ final class LibraryTest {
         var library = backend.library();
         backend.close();
 
-        var error = assertInstanceOf(LibraryError.SaveFailed.class, failure(library.addGame("  Disco Elysium  ")));
+        var result = library.addGame("  Disco Elysium  ");
+        var error = assertInstanceOf(LibraryError.SaveFailed.class, failure(result));
 
         assertEquals("Disco Elysium", error.title());
         assertEquals("Could not save game \"Disco Elysium\"", error.message());

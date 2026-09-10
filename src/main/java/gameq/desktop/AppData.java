@@ -7,8 +7,10 @@ final class AppData {
     private AppData() {}
 
     static Path database() {
-        var defaultPath =
-                Path.of(System.getProperty("user.home"), "Library", "Application Support", "gameq", "library.db");
-        return Path.of(System.getProperty("gameq.database", defaultPath.toString()));
+        var userHome = System.getProperty("user.home");
+        var applicationSupport = Path.of(userHome, "Library", "Application Support");
+        var defaultPath = applicationSupport.resolve("gameq").resolve("library.db");
+        var configuredPath = System.getProperty("gameq.database", defaultPath.toString());
+        return Path.of(configuredPath);
     }
 }
