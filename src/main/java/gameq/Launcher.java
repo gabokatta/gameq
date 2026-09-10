@@ -8,8 +8,7 @@ import org.slf4j.LoggerFactory;
 public final class Launcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(Launcher.class);
-    private static final String BANNER =
-            """
+    private static final String BANNER = """
                ____ _____ _____ ___  ___  ____ _
               / __ `/ __ `/ __ `__ \\/ _ \\/ __ `/
              / /_/ / /_/ / / / / / /  __/ /_/ /

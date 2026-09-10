@@ -1,4 +1,4 @@
-package gameq.persistence;
+package gameq.database.games;
 
 public final class GameStoreException extends RuntimeException {
 

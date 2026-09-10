@@ -43,7 +43,7 @@ tasks.jacocoTestReport {
 }
 
 spotless {
-    java { googleJavaFormat("1.36.1").aosp() }
+    java { palantirJavaFormat("2.80.0") }
     kotlinGradle { ktfmt("0.51").kotlinlangStyle() }
     format("repository") {
         target("*.md", ".gitignore", ".editorconfig", ".github/**/*.yml")
