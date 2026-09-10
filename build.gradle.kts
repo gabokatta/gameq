@@ -98,8 +98,30 @@ tasks.test {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+    classDirectories.setFrom(
+        sourceSets.main.get().output.asFileTree.matching {
+            exclude(
+                "gameq/Launcher.class",
+                "gameq/desktop/App.class",
+                "gameq/desktop/AppController.class")
+        })
     reports { xml.required = true }
 }
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+    classDirectories.setFrom(tasks.jacocoTestReport.get().classDirectories)
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                minimum = "0.80".toBigDecimal()
+            }
+        }
+    }
+}
+
+tasks.check { dependsOn(tasks.jacocoTestCoverageVerification) }
 
 spotless {
     java { palantirJavaFormat("2.80.0") }

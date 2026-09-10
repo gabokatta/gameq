@@ -107,6 +107,20 @@ final class LibraryTest {
         assertNotNull(cause.getCause());
     }
 
+    @Test
+    void reportsWhenGamesCannotBeLoaded() {
+        var backend = success(Backend.open(directory.resolve("library.db")));
+        var library = backend.library();
+        backend.close();
+
+        var result = library.games();
+        var error = assertInstanceOf(LibraryError.LoadFailed.class, failure(result));
+
+        assertEquals("Could not load the game library", error.message());
+        var cause = assertInstanceOf(GameStoreException.class, error.cause());
+        assertNotNull(cause.getCause());
+    }
+
     private static <T, E> T success(Result<T, E> result) {
         return switch (result) {
             case Result.Success(var value) -> value;
