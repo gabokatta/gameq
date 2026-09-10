@@ -1,5 +1,6 @@
 package gameq.desktop;
 
+import atlantafx.base.theme.PrimerLight;
 import gameq.domain.Game;
 import java.util.List;
 import javafx.application.Application;
@@ -13,6 +14,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.kordamp.ikonli.feather.Feather;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 public final class App extends Application {
 
@@ -21,13 +24,19 @@ public final class App extends Application {
     private Button addButton;
     private ListView<String> gameTitles;
     private Label status;
+    private boolean libraryReady;
+    private boolean saving;
 
     @Override
     public void start(Stage stage) {
+        setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+
         titleInput = new TextField();
         titleInput.setPromptText("Game title");
+        titleInput.textProperty().addListener((_, _, _) -> updateAddButton());
 
         addButton = new Button("Add");
+        addButton.setGraphic(new FontIcon(Feather.PLUS));
         addButton.setDefaultButton(true);
         addButton.setDisable(true);
         addButton.setOnAction(_ -> controller.addGame(titleInput.getText()));
@@ -61,12 +70,14 @@ public final class App extends Application {
     void showGames(List<Game> games) {
         gameTitles.getItems().setAll(games.stream().map(Game::title).toList());
         status.setText("");
-        addButton.setDisable(false);
+        libraryReady = true;
+        updateAddButton();
         titleInput.requestFocus();
     }
 
     void showSaving() {
-        addButton.setDisable(true);
+        saving = true;
+        updateAddButton();
         status.setText("Saving...");
     }
 
@@ -74,16 +85,22 @@ public final class App extends Application {
         gameTitles.getItems().add(game.title());
         titleInput.clear();
         status.setText("");
-        addButton.setDisable(false);
+        saving = false;
+        updateAddButton();
         titleInput.requestFocus();
     }
 
     void showSaveError(String message) {
         showError(message);
-        addButton.setDisable(false);
+        saving = false;
+        updateAddButton();
     }
 
     void showError(String message) {
         status.setText(message);
+    }
+
+    private void updateAddButton() {
+        addButton.setDisable(!libraryReady || saving || titleInput.getText().isBlank());
     }
 }
