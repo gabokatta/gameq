@@ -22,9 +22,33 @@ proves launch, persistence, and packaging early.
   preserve personal data and local overrides.
 - Keep credentials outside the library database, behind a credential-store
   interface. macOS uses Keychain, with session-only credentials as a fallback.
-- Keep disk and network work off the JavaFX application thread.
+- Use one explicit lifecycle owner for shared resources and application module
+  construction.
+- Keep blocking infrastructure APIs synchronous below the desktop layer. The
+  desktop owns background scheduling and returns UI updates to the JavaFX
+  application thread.
 - Use standard JavaFX controls with AtlantaFX and one Ikonli icon family.
   CSSFX is development-only. Scene Builder is optional tooling.
+
+## Code conventions
+
+- Application services express expected failures with `Result<T, E>` and
+  sealed, operation-specific errors. Translate infrastructure exceptions at
+  the application boundary; adapt only where a host contract requires an
+  exception.
+- Error values identify the failed operation and relevant resource, retain the
+  underlying cause when one exists, and contain enough context for the desktop
+  layer to present or log them without reconstructing what happened.
+- Organize application code by cohesive behavior and persistence code by data
+  ownership. Keep genuinely shared contracts at the layer root, and introduce
+  packages only when concrete code needs them.
+- Prefer explicit operation-specific handling and orchestration over generic
+  wrappers that hide context or make successful calls read like failure paths.
+- Favor readable construction over dense expressions. Name values that require
+  lookup, conversion, I/O, or nested construction before passing them onward;
+  keep plain arguments inline.
+- Keep SQL in named private constants and format multi-clause statements for
+  readability.
 
 ## Domain essentials
 
